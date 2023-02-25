@@ -1,5 +1,5 @@
 ---
-name: Docker dataeng_github_metrics
+name: Docker Image Publish Container spectacles-workflow
 
 # Run workflow on tags starting with v (eg. v2, v1.2.0)
 # yamllint disable-line rule:truthy
