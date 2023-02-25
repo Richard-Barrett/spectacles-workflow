@@ -33,8 +33,8 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        language: ['python']
+      #matrix:
+        #language: ['python']
         # yamllint disable-line rule:line-length
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Use only 'java' to analyze code written in Java, Kotlin or both
