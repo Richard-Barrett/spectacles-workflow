@@ -1,0 +1,45 @@
+---
+name: Docker dataeng_github_metrics
+
+# Run workflow on tags starting with v (eg. v2, v1.2.0)
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'spectacles/'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'spectacles/'
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_REGISTRY_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./spectacles/
+          file: ./spectacles/Dockerfile
+          # yamllint disable-line rule:comments
+          push: true # Will only build if this is not here
+          tags: |
+            ghcr.io/Richard-Barrett/spectacles-workflow:latest
+          # yamllint disable-line rule:line-length
+          # TODO: I CANNOT USE DATAENG AS PUBLIC AND NEED TO CHANGE THE WAY GITCONFIG IS USED IN THE DOCKERFILE FOR AUTHENTICATION
+          secrets: |
+            TOKEN=${{ secrets.AUTOMATION_PAT}}
+            GITHUB_ID=${{ secrets.GIT_ID }}

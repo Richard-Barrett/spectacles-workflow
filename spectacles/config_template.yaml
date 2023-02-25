@@ -1,0 +1,6 @@
+---
+# Replace with the URL of your Looker instance
+base_url: <REPLACE_WITH_YOUR_LOOKER_URL>
+# Replace with the actual values from your API key
+client_id: <REPLACE_WITH_LOOKER_CLIENTID>
+client_secret: <REPLACE_WITH_LOOKER_CLIENTSECRET>

@@ -1,0 +1,30 @@
+---
+name: Docker Image CI
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/docker-image.yml
+      - spectacles/*
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/docker-image.yml
+      - spectacles/*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: mirantis/mirantis_spectacles
+      IMAGE_TAG: latest_$(RELEASE)
+      BRANCH: $(git rev-parse --symbolic --abbrev-ref HEAD)
+      DATE: $(date +%s)
+      RELEASE: $(git tag --sort=committerdate | tail -1)
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        # yamllint disable-line rule:line-length
+        run: docker build . --file ./spectacles/Dockerfile --tag $IMAGE_NAME:latest_$(git rev-parse --symbolic --abbrev-ref HEAD)_$(git tag --sort=committerdate | tail -1)
