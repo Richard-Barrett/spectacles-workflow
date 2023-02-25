@@ -1,10 +1,12 @@
+---
 # yamllint disable-line rule:line-length
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # yamllint disable-line rule:line-length
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
----
-name: Content Validation
 
+name: SQL Validation
+
+# yamllint disable-line rule:truthy
 # yamllint disable-line rule:trailing-spaces, rule:truthy
 on:
   workflow_call:
@@ -44,27 +46,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Chgeckout Repository
         uses: actions/checkout@v3
 
       - name: Set up Python 3.10
-        # yamllint disable-line rule:line-length
-        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
       - name: Install dependencies
-        # yamllint disable-line rule:line-length
-        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         run: |
           python -m pip install --upgrade pip
-          pip install spectacles==2.3.0rc4
+          pip install spectacles
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Test Content Validation
-        # yamllint disable-line rule:line-length
-        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+      - name: Test SQL Validation
         env:
           BRANCH: $(git rev-parse --symbolic --abbrev-ref HEAD)
           LOOKER_BASE_URL: ${{ secrets.LOOKER_BASE_URL }}
@@ -72,7 +68,10 @@ jobs:
           LOOKER_CLIENTSECRET: ${{ secrets.LOOKER_CLIENTSECRET }}
           PROJECT: ${{ secrets.PROJECT }}
         run: |
-          spectacles content --base-url ${{ inputs.LOOKER_BASE_URL }} \
+          spectacles sql --base-url ${{ inputs.LOOKER_BASE_URL }} \
           --client-id ${{ inputs.LOOKER_CLIENTID }} \
           --client-secret ${{ inputs.LOOKER_CLIENTSECRET }} \
-          --project ${{ inputs.PROJECT }}
+          --project ${{ inputs.PROJECT }} \
+          --branch main \
+          --fail-fast \
+          --concurrency 50

@@ -7,20 +7,44 @@
 name: LookML Validation
 
 # yamllint disable-line rule:truthy
+# yamllint disable-line rule:trailing-spaces, rule:truthy
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_call:
+    inputs:
+      BRANCH:
+        required: false
+        type: string
+      AUTOMATION_PAT:
+        required: false
+        type: string
+      LOOKER_BASE_URL:
+        required: true
+        type: string
+      LOOKER_CLIENTID:
+        required: true
+        type: string
+      LOOKER_CLIENTSECRET:
+        required: true
+        type: string
+      PROJECT:
+        required: true
+        type: string
+    secrets:
+      AUTOMATION_PAT:
+        required: false
+      LOOKER_BASE_URL:
+        required: true
+      LOOKER_CLIENTID:
+        required: true
+      LOOKER_CLIENTSECRET:
+        required: true
 
 permissions:
   contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -45,8 +69,12 @@ jobs:
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         env:
           BRANCH: $(git rev-parse --symbolic --abbrev-ref HEAD)
+          LOOKER_BASE_URL: ${{ secrets.LOOKER_BASE_URL }}
+          LOOKER_CLIENTID: ${{ secrets.LOOKER_CLIENTID }}
+          LOOKER_CLIENTSECRET: ${{ secrets.LOOKER_CLIENTSECRET }}
+          PROJECT: ${{ secrets.PROJECT }}
         run: |
-          spectacles lookml --base-url ${{ secrets.LOOKER_BASE_URL }} \
-          --client-id ${{ secrets.LOOKER_CLIENTID }} \
-          --client-secret ${{ secrets.LOOKER_CLIENTSECRET }} \
-          --project ${{ secrets.PROJECT }}
+          spectacles lookml --base-url ${{ inputs.LOOKER_BASE_URL }} \
+          --client-id ${{ inputs.LOOKER_CLIENTID }} \
+          --client-secret ${{ inputs.LOOKER_CLIENTSECRET }} \
+          --project ${{ inputs.PROJECT }}
